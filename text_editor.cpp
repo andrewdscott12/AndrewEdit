@@ -2,6 +2,7 @@
 #include <pango/pango.h>
 
 TextEditor::TextEditor() {
+    //  This is a comment
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     // Set initial title
     gtk_window_set_title(GTK_WINDOW(window), "AndrewEdit");
@@ -110,6 +111,31 @@ void TextEditor::update_title() {
 void TextEditor::run() {
     gtk_widget_show_all(window);
     gtk_main();
+}
+
+bool TextEditor::open_file(const char *filename) {
+    gchar *content = NULL;
+    gsize length = 0;
+    GError *error = NULL;
+
+    if (g_file_get_contents(filename, &content, &length, &error)) {
+        if (!g_utf8_validate(content, length, NULL)) {
+            g_printerr("File is not valid UTF-8: %s\n", filename);
+            g_free(content);
+            if (error) g_error_free(error);
+            return false;
+        }
+
+        gtk_text_buffer_set_text(buffer, content, (gint)length);
+        g_free(content);
+        current_filename = filename;
+        update_title();
+        return true;
+    } else {
+        g_printerr("Error opening file %s: %s\n", filename, error ? error->message : "unknown");
+        if (error) g_error_free(error);
+        return false;
+    }
 }
 
 void TextEditor::setup_ui() {

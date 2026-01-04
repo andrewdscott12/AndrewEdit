@@ -8,6 +8,7 @@ class TextEditor {
 public:
     TextEditor();
     void run();
+    bool open_file(const char *filename);
 
 private:
     GtkWidget *window;
